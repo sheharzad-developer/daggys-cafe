@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/header';
-import { CartProvider } from '@/hooks/use-cart.tsx';
+import { CartProvider } from '@/hooks/use-cart';
 
 export const metadata: Metadata = {
   title: 'Daggys Cafe',

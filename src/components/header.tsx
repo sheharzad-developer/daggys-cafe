@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, UtensilsCrossed } from 'lucide-react';
-import { useCart } from '@/hooks/use-cart.tsx';
+import { useCart } from '@/hooks/use-cart';
 import { useEffect, useState } from 'react';
 import { CartSheet } from './cart-sheet';
 

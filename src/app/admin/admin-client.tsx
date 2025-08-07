@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,12 +23,41 @@ const getSalesData = (orders: Order[]) => {
 export function AdminClient({ initialOrders }: { initialOrders: Order[] }) {
     const [orders, setOrders] = useState<Order[]>(initialOrders);
 
+    // Request notification permission when component mounts
+    useEffect(() => {
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+    }, []);
+
     const handleStatusChange = (orderId: string, newStatus: 'Pending' | 'Delivered' | 'Cancelled') => {
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
+        setOrders(prevOrders => {
+            const updatedOrders = prevOrders.map(order =>
                 order.id === orderId ? { ...order, status: newStatus } : order
-            )
-        );
+            );
+            
+            // Trigger notification for new pending orders
+            if (newStatus === 'Pending') {
+                const order = prevOrders.find(o => o.id === orderId);
+                if (order) {
+                    // Browser notification
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('New Order!', {
+                            body: `Order #${orderId} from ${order.customerName}`,
+                            icon: '/favicon.ico'
+                        });
+                    }
+                    
+                    // Sound notification
+                    const audio = new Audio('/notification-sound.mp3');
+                    audio.play().catch(error => {
+                        console.log('Audio notification failed:', error);
+                    });
+                }
+            }
+            
+            return updatedOrders;
+        });
     };
 
     const salesData = getSalesData(orders);
