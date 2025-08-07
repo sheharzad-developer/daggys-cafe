@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import { CartProvider } from '@/hooks/use-cart.tsx';
 
 export const metadata: Metadata = {
-  title: 'MacroMeals',
+  title: 'Daggys Cafe',
   description: 'Macro-Counted Meal Delivery Platform',
 };
 
