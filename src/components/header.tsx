@@ -20,7 +20,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
             <UtensilsCrossed className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-bold font-headline text-primary">MacroMeals</span>
+            <span className="text-2xl font-bold font-headline text-primary">Daggys Cafe</span>
         </Link>
         <nav className="flex items-center gap-4">
           <Button variant="ghost" asChild>
