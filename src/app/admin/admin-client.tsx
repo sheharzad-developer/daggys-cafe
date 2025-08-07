@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { orders as initialOrdersData } from '@/lib/data';
+import { useSocket } from '@/hooks/use-socket';
 import type { Order } from '@/lib/data';
 
 const getSalesData = (orders: Order[]) => {
@@ -22,6 +23,7 @@ const getSalesData = (orders: Order[]) => {
 
 export function AdminClient({ initialOrders }: { initialOrders: Order[] }) {
     const [orders, setOrders] = useState<Order[]>(initialOrders);
+    const { onOrderUpdate, emitNewOrder } = useSocket();
 
     // Request notification permission when component mounts
     useEffect(() => {
@@ -30,28 +32,41 @@ export function AdminClient({ initialOrders }: { initialOrders: Order[] }) {
         }
     }, []);
 
+    // Listen for real-time order updates
+    useEffect(() => {
+        onOrderUpdate((orderData: any) => {
+            console.log('Real-time order update received:', orderData);
+            
+            // Trigger notifications for new orders
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('New Order!', {
+                    body: `Order #${orderData.id} from ${orderData.customerName}`,
+                    icon: '/favicon.ico'
+                });
+            }
+            
+            // Sound notification
+            const audio = new Audio('/notification-sound.mp3');
+            audio.play().catch(error => {
+                console.log('Audio notification failed:', error);
+            });
+        });
+    }, [onOrderUpdate]);
+
     const handleStatusChange = (orderId: string, newStatus: 'Pending' | 'Delivered' | 'Cancelled') => {
         setOrders(prevOrders => {
             const updatedOrders = prevOrders.map(order =>
                 order.id === orderId ? { ...order, status: newStatus } : order
             );
             
-            // Trigger notification for new pending orders
+            // Emit real-time update for status changes
             if (newStatus === 'Pending') {
                 const order = prevOrders.find(o => o.id === orderId);
                 if (order) {
-                    // Browser notification
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('New Order!', {
-                            body: `Order #${orderId} from ${order.customerName}`,
-                            icon: '/favicon.ico'
-                        });
-                    }
-                    
-                    // Sound notification
-                    const audio = new Audio('/notification-sound.mp3');
-                    audio.play().catch(error => {
-                        console.log('Audio notification failed:', error);
+                    // Emit to Socket.IO for real-time updates
+                    emitNewOrder({
+                        ...order,
+                        status: newStatus
                     });
                 }
             }
