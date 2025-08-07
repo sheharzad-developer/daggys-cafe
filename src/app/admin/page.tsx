@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingBag, User, CheckCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, ShoppingBag, User, CheckCircle, CreditCard } from "lucide-react";
 import { AdminClient } from './admin-client';
+import { PaymentManagement } from '@/components/payment-management';
 import { orders } from '@/lib/data';
 
 const getDashboardStats = () => {
@@ -71,7 +73,26 @@ export default function AdminPage() {
                 </Card>
             </div>
             
-            <AdminClient initialOrders={orders} />
+            <Tabs defaultValue="orders" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="orders" className="flex items-center gap-2">
+                        <ShoppingBag className="w-4 h-4" />
+                        Order Management
+                    </TabsTrigger>
+                    <TabsTrigger value="payments" className="flex items-center gap-2">
+                        <CreditCard className="w-4 h-4" />
+                        Payment Management
+                    </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="orders">
+                    <AdminClient initialOrders={orders} />
+                </TabsContent>
+                
+                <TabsContent value="payments">
+                    <PaymentManagement />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }
