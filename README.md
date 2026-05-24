@@ -169,14 +169,6 @@ Each meal in [`src/lib/data.ts`](src/lib/data.ts) has two image sources:
 
 The [`MealImage`](src/components/meal-image.tsx) client component starts with `localImage` and falls back to `image` via `onError` if the local file is missing. To use your own photos, drop them into `public/images/meals/` matching the slugs in `localImage` (filename list is in [`public/images/meals/README.md`](public/images/meals/README.md)).
 
-## Notes / gotchas
-
-- **Favicon lives in `/public`, not `src/app/`**. Next.js's metadata route loader generates code that embeds the absolute file path as a single-quoted JS literal — paths containing an apostrophe (e.g. `Daggy's Cafe`) break the parse and 500 every App Router route. Keeping favicon in `/public` sidesteps the loader entirely.
-- **Stripe + PKR**: Stripe accepts `currency: 'pkr'` in test mode regardless of account country, but Stripe is not available as a payment processor for Pakistan-based businesses in production. For real PK deployments, swap to JazzCash / Easypaisa / SafePay.
-- **Cart-total mismatch on Payment Link**: when API keys aren't configured, `/checkout` shows a Stripe Payment Link button. Payment Links charge a **fixed amount set in the Stripe dashboard** — not the cart total. Migrate to a Stripe Checkout Session if you need dynamic line items.
-- **Supabase fallback**: [src/lib/supabase.ts](src/lib/supabase.ts) ships with a public Supabase URL + anon key as a fallback for demo purposes. Replace with your own project for real use — and never store sensitive data under those fallback credentials.
-- **Security baseline**: this codebase targets Next.js `^15.3.6` to remediate [CVE-2025-66478](https://nextjs.org/blog/CVE-2025-66478) / [CVE-2025-55182](https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components) (React Server Components RCE). Don't downgrade below `15.3.6` on the 15.3.x line.
-
 ## Deploying
 
 This project deploys to Vercel out of the box. **Env vars must be added in the Vercel dashboard** (`Settings → Environment Variables`); `.env.local` is gitignored and not uploaded. After saving env vars, trigger a fresh deploy — env-var changes don't take effect on already-built deployments.
