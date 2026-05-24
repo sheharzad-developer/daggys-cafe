@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { amount, currency = 'usd', customerInfo, cartItems } = await request.json();
+    const { amount, currency = 'pkr', customerInfo, cartItems } = await request.json();
 
     if (!amount || amount <= 0) {
       return NextResponse.json(

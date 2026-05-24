@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { orders as initialOrdersData } from '@/lib/data';
 import { useSocket } from '@/hooks/use-socket';
 import type { Order } from '@/lib/data';
+import { formatPrice } from '@/lib/utils';
 
 const getSalesData = (orders: Order[]) => {
     const salesByDay: { [key: string]: number } = {};
@@ -89,7 +90,7 @@ export function AdminClient({ initialOrders }: { initialOrders: Order[] }) {
                         <BarChart data={salesData}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => formatPrice(value)} />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: 'hsl(var(--background))',
@@ -138,7 +139,7 @@ export function AdminClient({ initialOrders }: { initialOrders: Order[] }) {
                                             </SelectContent>
                                         </Select>
                                     </TableCell>
-                                    <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatPrice(order.total)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

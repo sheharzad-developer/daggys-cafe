@@ -13,8 +13,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, CreditCard, Shield, CheckCircle } from "lucide-react";
-import Image from "next/image";
+import { MealImage } from "@/components/meal-image";
+import { formatPrice } from "@/lib/utils";
 import { loadStripe } from "@stripe/stripe-js";
+
+const DELIVERY_FEE = 837;
+const TAX_RATE = 0.08;
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_aFaaEW1wuduC2Ty92Ycwg01";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
@@ -74,7 +79,7 @@ function CheckoutForm() {
         },
         body: JSON.stringify({
           amount: cartTotal,
-          currency: 'usd',
+          currency: 'pkr',
           customerInfo: {
             name: data.name,
             email: data.email,
@@ -205,34 +210,34 @@ function CheckoutForm() {
                 <div key={item.id} className="flex justify-between items-center">
                   <div className="flex items-center gap-4">
                     <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <MealImage meal={item} fill className="object-cover" sizes="48px" />
                     </div>
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                   </div>
-                  <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
                 </div>
               ))}
               <Separator />
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <p>Subtotal</p>
-                  <p>${cartTotal.toFixed(2)}</p>
+                  <p>{formatPrice(cartTotal)}</p>
                 </div>
                 <div className="flex justify-between">
                   <p>Delivery Fee</p>
-                  <p>$2.99</p>
+                  <p>{formatPrice(DELIVERY_FEE)}</p>
                 </div>
                 <div className="flex justify-between">
                   <p>Tax</p>
-                  <p>${(cartTotal * 0.08).toFixed(2)}</p>
+                  <p>{formatPrice(cartTotal * TAX_RATE)}</p>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <p>Total</p>
-                  <p>${(cartTotal + 2.99 + cartTotal * 0.08).toFixed(2)}</p>
+                  <p>{formatPrice(cartTotal + DELIVERY_FEE + cartTotal * TAX_RATE)}</p>
                 </div>
               </div>
             </CardContent>
@@ -376,7 +381,7 @@ function CheckoutForm() {
                         Processing Payment...
                       </>
                     ) : (
-                      `Pay $${(cartTotal + 2.99 + cartTotal * 0.08).toFixed(2)}`
+                      `Pay ${formatPrice(cartTotal + DELIVERY_FEE + cartTotal * TAX_RATE)}`
                     )}
                   </Button>
                   
@@ -409,22 +414,66 @@ export default function CheckoutPage() {
   }
 
   if (!stripePromise) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">
-            <strong>Payment System Not Available</strong>
-            <br />
-            The payment system is currently not configured. Please contact support or try again later.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+    return <PaymentLinkCheckout />;
   }
 
   return (
     <Elements stripe={stripePromise}>
       <CheckoutForm />
     </Elements>
+  );
+}
+
+function PaymentLinkCheckout() {
+  const { cartItems, cartTotal } = useCart();
+  const total = cartTotal + DELIVERY_FEE + cartTotal * TAX_RATE;
+
+  return (
+    <div className="max-w-2xl mx-auto py-12">
+      <Card>
+        <CardHeader>
+          <CardTitle>Complete Your Order</CardTitle>
+          <CardDescription>
+            You&apos;ll be redirected to Stripe&apos;s secure checkout to complete payment.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {cartItems.map(item => (
+            <div key={item.id} className="flex justify-between text-sm">
+              <span>{item.name} × {item.quantity}</span>
+              <span>{formatPrice(item.price * item.quantity)}</span>
+            </div>
+          ))}
+          <Separator />
+          <div className="flex justify-between text-sm">
+            <span>Subtotal</span>
+            <span>{formatPrice(cartTotal)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Delivery Fee</span>
+            <span>{formatPrice(DELIVERY_FEE)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Tax</span>
+            <span>{formatPrice(cartTotal * TAX_RATE)}</span>
+          </div>
+          <Separator />
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+          <Alert>
+            <AlertDescription className="text-xs text-muted-foreground">
+              Note: the Stripe Payment Link charges a fixed amount set in the dashboard, which may not match your cart total. Migrating to a Checkout Session will make the charged amount dynamic.
+            </AlertDescription>
+          </Alert>
+          <Button asChild className="w-full font-bold text-lg" size="lg">
+            <a href={STRIPE_PAYMENT_LINK} target="_blank" rel="noopener noreferrer">
+              Pay with Stripe
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

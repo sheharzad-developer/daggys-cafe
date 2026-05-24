@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Flame, Beef, Wheat, Droplets } from 'lucide-react';
 import { DRAG_THRESHOLDS, ANIMATION_CONFIG, type TossAnimation } from './types';
 import { prefersReducedMotion } from '@/lib/webgl-detection';
+import { formatPrice } from '@/lib/utils';
 import type { FoodCard3DProps } from './types';
 
 // Context to share drag state between DOM and 3D
@@ -293,7 +294,7 @@ export function FoodCard3D({ meal, onAddToCart, enableEffects = false, disabled 
             <div className="p-6 pb-2">
               <CardTitle className="font-headline text-2xl">{meal.name}</CardTitle>
               <CardDescription className="text-primary font-bold text-lg">
-                ${meal.price.toFixed(2)}
+                {formatPrice(meal.price)}
               </CardDescription>
             </div>
           </CardHeader>

@@ -1,7 +1,8 @@
 "use client";
 
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { MealImage } from '@/components/meal-image';
+import { formatPrice } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription } from '@/components/ui/sheet';
 import { useCart } from '@/hooks/use-cart.tsx';
@@ -34,11 +35,11 @@ export function CartSheet({ isOpen, onOpenChange }: { isOpen: boolean, onOpenCha
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-4">
                     <div className="relative w-20 h-20 rounded-md overflow-hidden">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <MealImage meal={item} fill className="object-cover" sizes="80px" />
                     </div>
                     <div className="flex-grow">
                       <h3 className="font-semibold">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">{formatPrice(item.price)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Input
                           type="number"
@@ -52,7 +53,7 @@ export function CartSheet({ isOpen, onOpenChange }: { isOpen: boolean, onOpenCha
                         </Button>
                       </div>
                     </div>
-                    <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
                   </div>
                 ))}
               </div>
@@ -62,7 +63,7 @@ export function CartSheet({ isOpen, onOpenChange }: { isOpen: boolean, onOpenCha
                 <Separator />
                 <div className="flex justify-between items-center font-bold text-lg">
                   <span>Subtotal</span>
-                  <span>${cartTotal.toFixed(2)}</span>
+                  <span>{formatPrice(cartTotal)}</span>
                 </div>
                 <Button onClick={handleCheckout} className="w-full font-bold text-lg" size="lg">
                   Proceed to Checkout

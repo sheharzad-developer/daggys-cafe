@@ -9,20 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CreditCard, 
-  DollarSign, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
+import {
+  CreditCard,
+  Banknote,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Clock,
   Search,
   Filter,
   Download,
   RefreshCw
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/stripe';
 import { supabase } from '@/lib/supabase';
+import { formatPrice } from '@/lib/utils';
 
 interface PaymentIntent {
   id: string;
@@ -220,10 +220,10 @@ export function PaymentManagement() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <Banknote className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.totalRevenue)}</div>
             <p className="text-xs text-muted-foreground">
               From {stats.successfulPayments} successful payments
             </p>
@@ -236,7 +236,7 @@ export function PaymentManagement() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.todayRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.todayRevenue)}</div>
             <p className="text-xs text-muted-foreground">
               Revenue generated today
             </p>
@@ -249,7 +249,7 @@ export function PaymentManagement() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.averageOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.averageOrderValue)}</div>
             <p className="text-xs text-muted-foreground">
               Average order value
             </p>
@@ -371,7 +371,7 @@ export function PaymentManagement() {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">
-                        ${payment.amount.toFixed(2)}
+                        {formatPrice(payment.amount)}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(payment.status)}

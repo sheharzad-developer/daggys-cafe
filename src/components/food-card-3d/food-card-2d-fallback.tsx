@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrag } from '@use-gesture/react';
-import Image from 'next/image';
+import { MealImage } from '@/components/meal-image';
 import type { Meal } from '@/lib/data';
+import { formatPrice } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Flame, Beef, Wheat, Droplets } from 'lucide-react';
@@ -204,12 +205,12 @@ export function FoodCard2DFallback({ meal, onAddToCart, disabled }: FoodCard2DFa
       <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader className="p-0">
           <div className="relative aspect-[4/3] w-full">
-            <Image src={meal.image} alt={meal.name} fill className="object-cover" />
+            <MealImage meal={meal} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           </div>
           <div className="p-6 pb-2">
             <CardTitle className="font-headline text-2xl">{meal.name}</CardTitle>
             <CardDescription className="text-primary font-bold text-lg">
-              ${meal.price.toFixed(2)}
+              {formatPrice(meal.price)}
             </CardDescription>
           </div>
         </CardHeader>

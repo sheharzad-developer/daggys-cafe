@@ -1,20 +1,21 @@
-import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { meals } from '@/lib/data';
 import type { Meal } from '@/lib/data';
 import { Flame, Beef, Wheat, Droplets, PlusCircle } from 'lucide-react';
 import { AddToCartButton } from '@/components/add-to-cart-button';
+import { MealImage } from '@/components/meal-image';
+import { formatPrice } from '@/lib/utils';
 
 const MealCard = ({ meal }: { meal: Meal }) => (
   <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
     <CardHeader className="p-0">
       <div className="relative aspect-[4/3] w-full">
-        <Image src={meal.image} alt={meal.name} fill className="object-cover" data-ai-hint={meal.dataAiHint} />
+        <MealImage meal={meal} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw" />
       </div>
       <div className="p-6 pb-2">
         <CardTitle className="font-headline text-2xl">{meal.name}</CardTitle>
-        <CardDescription className="text-primary font-bold text-lg">${meal.price.toFixed(2)}</CardDescription>
+        <CardDescription className="text-primary font-bold text-lg">{formatPrice(meal.price)}</CardDescription>
       </div>
     </CardHeader>
     <CardContent className="flex-grow p-6 pt-0">

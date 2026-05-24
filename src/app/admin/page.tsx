@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, ShoppingBag, User, CheckCircle, CreditCard } from "lucide-react";
+import { Banknote, ShoppingBag, User, CheckCircle, CreditCard } from "lucide-react";
 import { AdminClient } from './admin-client';
 import { PaymentManagement } from '@/components/payment-management';
 import { orders } from '@/lib/data';
+import { formatPrice } from '@/lib/utils';
 
 const getDashboardStats = () => {
     const today = new Date();
@@ -34,10 +35,10 @@ export default function AdminPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Daily Sales</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <Banknote className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${dailySales.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">{formatPrice(dailySales)}</div>
                         <p className="text-xs text-muted-foreground">Sales from delivered orders today</p>
                     </CardContent>
                 </Card>
