@@ -1,116 +1,186 @@
-# Daggy's Cafe - Healthy Meal Delivery App
+# Daggy's Cafe — Healthy Meal Delivery App
 
-A modern Next.js application for a healthy meal delivery service featuring macro-counted meals with a beautiful, responsive UI.
+A Next.js demo storefront for a macro-counted meal delivery service. Pakistani Rupee pricing, Stripe-powered checkout (test mode), an admin dashboard, and a 3D food-card variant.
 
 ## Features
 
-- 🍔 **Menu Categories**: Burgers, Healthy Bowls, Desserts, and Sides
-- 📊 **Macro Tracking**: Detailed nutritional information (calories, protein, carbs, fats)
-- 🛒 **Shopping Cart**: Add items to cart with quantity management
-- 📱 **Responsive Design**: Mobile-first design with Tailwind CSS
-- ⚡ **Fast Performance**: Built with Next.js 15 and Turbopack
-- 🎨 **Modern UI**: Shadcn/ui components with beautiful animations
+- **Menu categories**: Burgers, Healthy Bowls, Desserts, Sides
+- **Macro tracking**: calories, protein, carbs, fats per item
+- **Shopping cart**: localStorage-backed, quantity controls, full sheet UI
+- **Checkout**: Stripe Elements (Payment Intent flow) with a hosted Payment Link fallback when API keys are missing
+- **Admin dashboard**: order management, sales chart, payment-management panel
+- **Responsive UI**: Tailwind + shadcn/ui, mobile-first
+- **3D food cards**: optional `react-three-fiber` card view with a graceful 2D fallback when WebGL is unavailable
 
-## Menu Items
+## Menu (PKR)
 
 ### Burgers
-- Classic Beef Burger - $12.99
-- Grilled Chicken Burger - $11.99
-- BBQ Bacon Burger - $13.99
-- Veggie Deluxe Burger - $10.99
+- Classic Beef Burger — Rs 3,637
+- Grilled Chicken Burger — Rs 3,357
+- BBQ Bacon Burger — Rs 3,917
+- Veggie Deluxe Burger — Rs 3,077
 
 ### Healthy Bowls
-- Quinoa & Kale Bowl - $14.50
-- Salmon & Avocado Bowl - $16.99
+- Quinoa & Kale Bowl — Rs 4,060
+- Salmon & Avocado Bowl — Rs 4,757
+- Buddha Bowl — Rs 4,060
 
 ### Desserts
-- Protein Brownie - $5.99
-- Greek Yogurt Parfait - $6.50
+- Protein Brownie — Rs 1,677
+- Greek Yogurt Parfait — Rs 1,820
+- Mango Mousse Cake — Rs 4,060
 
 ### Sides
-- Sweet Potato Fries - $4.99
-- Side Salad - $3.99
+- Sweet Potato Fries — Rs 1,397
+- Side Salad — Rs 1,117
 
-## Tech Stack
+Prices live in [src/lib/data.ts](src/lib/data.ts). Formatting is centralized in `formatPrice()` at [src/lib/utils.ts](src/lib/utils.ts).
 
-- **Framework**: Next.js 15 with App Router
+## Tech stack
+
+- **Framework**: Next.js 15 (App Router) + Turbopack
+- **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **UI Components**: Shadcn/ui + Radix UI
-- **Icons**: Lucide React
-- **TypeScript**: Full type safety
-- **Build Tool**: Turbopack for fast development
+- **UI**: shadcn/ui + Radix primitives, Lucide icons
+- **3D**: `@react-three/fiber`, `@react-three/drei`
+- **Payments**: Stripe (Payment Intents + Payment Links)
+- **Backend**: Supabase (payment intent + order persistence — optional)
+- **Realtime**: socket.io for admin order push
+- **AI helpers**: Genkit (Google AI)
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- **Node.js 18, 20, or 22.** If you're on Node 25+, the `dev`/`build`/`start` scripts already pass `--no-experimental-webstorage` to work around a known broken-`localStorage` global that crashes SSR — no extra setup needed.
+- npm
 
-### Installation
+### Install
 
-1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd download
-```
-
-2. Install dependencies:
-```bash
+cd daggys-cafe
 npm install
 ```
 
-3. Start the development server:
+### Environment variables
+
+Copy the example and fill in your own Stripe test keys:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Required for live Stripe checkout (without these, the `/checkout` page falls back to a Payment Link button):
+
+| Variable | Where to get it |
+|---|---|
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | [dashboard.stripe.com/test/apikeys](https://dashboard.stripe.com/test/apikeys) |
+| `STRIPE_SECRET_KEY` | same page |
+
+Optional:
+
+| Variable | Why |
+|---|---|
+| `STRIPE_WEBHOOK_SECRET` | only needed when wiring `/api/payments/webhook`. Get with `stripe listen --forward-to localhost:9002/api/payments/webhook` |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | overrides for the public-fallback Supabase project hard-coded in [src/lib/supabase.ts](src/lib/supabase.ts) |
+
+### Run
+
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:9002](http://localhost:9002) in your browser
+Visit [http://localhost:9002](http://localhost:9002).
 
-## Available Scripts
+### Testing the checkout
 
-- `npm run dev` - Start development server with Turbopack on port 9002
-- `npm run build` - Build the application for production
-- `npm run start` - Start the production server
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run genkit:dev` - Start Genkit development server
-- `npm run genkit:watch` - Start Genkit with watch mode
+Use Stripe's test card — **never enter real card details**:
 
-## Project Structure
+```
+Card:   4242 4242 4242 4242
+Expiry: any future MM/YY  (e.g. 05/34)
+CVC:    any 3 digits      (e.g. 540)
+ZIP:    any 5 digits      (e.g. 54000)
+```
+
+## Scripts
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Dev server with Turbopack on port 9002 |
+| `npm run build` | Production build |
+| `npm run start` | Production server |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run genkit:dev` | Start Genkit AI dev server |
+| `npm run genkit:watch` | Genkit with file-watch mode |
+
+## Project structure
 
 ```
 src/
-├── app/                 # Next.js App Router pages
-│   ├── admin/          # Admin dashboard
-│   ├── checkout/       # Checkout process
-│   ├── confirmation/   # Order confirmation
-│   ├── layout.tsx      # Root layout
-│   └── page.tsx        # Home page
-├── components/         # Reusable UI components
-│   ├── ui/            # Shadcn/ui components
+├── app/                              # Next.js App Router
+│   ├── admin/                        # Admin dashboard + client widgets
+│   ├── api/
+│   │   └── payments/
+│   │       ├── create-intent/        # Stripe Payment Intent endpoint (PKR)
+│   │       └── webhook/              # Stripe webhook (signature-verified)
+│   ├── checkout/                     # Stripe Elements form + Payment Link fallback
+│   ├── confirmation/                 # Post-payment landing
+│   ├── demo-3d/                      # 3D food-card showcase
+│   ├── layout.tsx
+│   └── page.tsx                      # Home: meal grid by category
+├── components/
+│   ├── ui/                           # shadcn/ui primitives
+│   ├── food-card-3d/                 # 3D card + 2D fallback + WebGL detection
 │   ├── add-to-cart-button.tsx
+│   ├── cart-icon.tsx
 │   ├── cart-sheet.tsx
-│   └── header.tsx
-├── hooks/             # Custom React hooks
+│   ├── header.tsx
+│   ├── meal-image.tsx                # Local-first image with Unsplash onError fallback
+│   └── payment-management.tsx        # Admin payments panel (Supabase-backed)
+├── hooks/
 │   ├── use-cart.tsx
+│   ├── use-socket.tsx                # socket.io client for admin order push
 │   └── use-toast.ts
-├── lib/               # Utility functions and data
-│   ├── data.ts        # Menu items and orders data
-│   └── utils.ts       # Helper functions
-└── ai/                # AI integration (Genkit)
+├── lib/
+│   ├── data.ts                       # Menu + sample orders (PKR amounts)
+│   ├── stripe.ts                     # Stripe SDK init + amount helpers
+│   ├── supabase.ts                   # Supabase client (with public fallback)
+│   ├── utils.ts                      # cn() + formatPrice()
+│   └── webgl-detection.ts            # 3D card capability + motion preference
+└── ai/
     ├── dev.ts
     └── genkit.ts
+
+public/
+├── favicon.ico                       # served from /public (not app/) — see Notes
+└── images/
+    └── meals/                        # Drop JPGs here to override Unsplash defaults
 ```
 
-## Contributing
+## Images
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+Each meal in [`src/lib/data.ts`](src/lib/data.ts) has two image sources:
+
+- `image` — Unsplash URL (always-available remote fallback)
+- `localImage` — path under `public/images/meals/` (preferred when present)
+
+The [`MealImage`](src/components/meal-image.tsx) client component starts with `localImage` and falls back to `image` via `onError` if the local file is missing. To use your own photos, drop them into `public/images/meals/` matching the slugs in `localImage` (filename list is in [`public/images/meals/README.md`](public/images/meals/README.md)).
+
+## Notes / gotchas
+
+- **Favicon lives in `/public`, not `src/app/`**. Next.js's metadata route loader generates code that embeds the absolute file path as a single-quoted JS literal — paths containing an apostrophe (e.g. `Daggy's Cafe`) break the parse and 500 every App Router route. Keeping favicon in `/public` sidesteps the loader entirely.
+- **Stripe + PKR**: Stripe accepts `currency: 'pkr'` in test mode regardless of account country, but Stripe is not available as a payment processor for Pakistan-based businesses in production. For real PK deployments, swap to JazzCash / Easypaisa / SafePay.
+- **Cart-total mismatch on Payment Link**: when API keys aren't configured, `/checkout` shows a Stripe Payment Link button. Payment Links charge a **fixed amount set in the Stripe dashboard** — not the cart total. Migrate to a Stripe Checkout Session if you need dynamic line items.
+- **Supabase fallback**: [src/lib/supabase.ts](src/lib/supabase.ts) ships with a public Supabase URL + anon key as a fallback for demo purposes. Replace with your own project for real use — and never store sensitive data under those fallback credentials.
+- **Security baseline**: this codebase targets Next.js `^15.3.6` to remediate [CVE-2025-66478](https://nextjs.org/blog/CVE-2025-66478) / [CVE-2025-55182](https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components) (React Server Components RCE). Don't downgrade below `15.3.6` on the 15.3.x line.
+
+## Deploying
+
+This project deploys to Vercel out of the box. **Env vars must be added in the Vercel dashboard** (`Settings → Environment Variables`); `.env.local` is gitignored and not uploaded. After saving env vars, trigger a fresh deploy — env-var changes don't take effect on already-built deployments.
 
 ## License
 
-This project is licensed under the MIT License.
+MIT.
